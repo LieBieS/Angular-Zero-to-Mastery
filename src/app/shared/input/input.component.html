@@ -1,0 +1,9 @@
+             <input formControlName="name" type="text"
+                class="block w-full py-1.5 px-3 text-gray-200 border border-gray-400 transition duration-500 focus:outline-none rounded bg-transparent focus:border-indigo-400"
+                placeholder="Enter Name" />
+                <p *ngIf="control.errors?.required && control.dirty && control.touched" class="text-red-400">
+                   This field is required.
+                </p>
+                       <p *ngIf="control.errors?.minlength  " class="text-red-400">
+                   The value enter is {{control.errors?.minlength.actualLength }} charaters long. It should be at least {{control.errors?.minlength.requiredLength}} characters long.
+                </p>
