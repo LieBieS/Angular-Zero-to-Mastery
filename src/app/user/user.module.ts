@@ -20,10 +20,8 @@ import { RegisterComponent } from './register/register.component';
     ReactiveFormsModule
   ],
   exports: [
-    AuthModalComponent
+    AuthModalComponent,   
   ]
 })
 export class UserModule {
-
-
 }

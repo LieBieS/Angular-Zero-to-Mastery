@@ -60,7 +60,7 @@
     ></app-input>
   </div>
   <button 
-    type="submit" [disabled]="registerForm.invalid"
+    type="submit" [disabled]="registerForm.invalid || inSubmission"
     class="disabled:opacity-50  block w-full bg-indigo-400 text-white py-1.5 px-3 rounded transition hover:bg-indigo-500 disabled:bg-indigo-400"
   >
     Submit
