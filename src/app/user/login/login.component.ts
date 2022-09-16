@@ -25,10 +25,10 @@ export class LoginComponent implements OnInit {
   });
   ngOnInit(): void { }
 
-  async login(){
+  async login() {
     this.inSubmission = true;
     const status = await this.authService.login(this.loginForm.value as IUser);
-    
+
     if (status === 200) {
       this.successReturn();
     } else {
@@ -36,8 +36,11 @@ export class LoginComponent implements OnInit {
     }
   }
   successReturn() {
-    throw new Error('Method not implemented.');
+    this.alertMsg = 'You have been successfully authenticated.';
+    this.alertColour = 'green';
+    this.showAlert = true;
   }
+  
 
   private errorReturn() {
     this.alertMsg = 'An unexpected error occured. please try again later.';
@@ -45,4 +48,5 @@ export class LoginComponent implements OnInit {
     this.showAlert = true;
     this.inSubmission = false;
   }
+  
 }

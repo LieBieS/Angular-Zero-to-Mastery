@@ -1,6 +1,6 @@
 <!-- Registration Form -->
 <app-alert *ngIf="showAlert" [colour]="alertColour">
-  {{alertMsg}}
+  {{ alertMsg }}
 </app-alert>
 
 <form [formGroup]="registerForm" (ngSubmit)="register()">
@@ -34,10 +34,10 @@
   <!-- Password -->
   <div class="mb-3">
     <label class="inline-block mb-2">Password</label>
-     <app-input
+    <app-input
       [control]="password"
       placeholder="Enter Password"
-      type="password" 
+      type="password"
     ></app-input>
   </div>
   <!-- Confirm Password -->
@@ -46,23 +46,26 @@
     <app-input
       [control]="confirmPassword"
       placeholder="Confirm Password"
-      type="password"    
+      type="password"
     ></app-input>
   </div>
   <!-- Phone Number -->
   <div class="mb-3">
     <label class="inline-block mb-2">Phone Number</label>
-   <app-input
+    <app-input
       [control]="phoneNumber"
       placeholder="Enter Phone Number"
       type="text"
-      mask="(000) 000-0000" prefix="+27" 
+      mask="(000) 000-0000"
+      prefix="+27"
     ></app-input>
   </div>
-  <button 
-    type="submit" [disabled]="registerForm.invalid || inSubmission"
-    class="disabled:opacity-50  block w-full bg-indigo-400 text-white py-1.5 px-3 rounded transition hover:bg-indigo-500 disabled:bg-indigo-400"
+  <button
+    type="submit"
+    [disabled]="registerForm.invalid || inSubmission"
+    class="disabled:opacity-50 block w-full bg-indigo-400 text-white py-1.5 px-3 rounded transition hover:bg-indigo-500 disabled:bg-indigo-400"
   >
     Submit
   </button>
 </form>
+<p>{{ registerForm.errors | json }}</p>

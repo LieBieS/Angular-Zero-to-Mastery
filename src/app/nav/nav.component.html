@@ -4,7 +4,7 @@
     <!-- App Name -->
     <a
       class="text-3xl text-indigo-400 font-bold uppercase mr-4"
-      href="index.html"
+      href="/"
       >Clipz</a
     >
 
@@ -12,17 +12,22 @@
       <!-- Primary Navigation -->
       <ul class="flex flex-row mt-1">
         <!-- Navigation Links -->
-        <li>
+        <li *ngIf="!(auth.isAuthenticated$ | async); else authLinks">
           <a class="px-2" href="#" (click)="openModal($event)">Login / Register</a>
         </li>
+        <ng-template #authLinks>
+          <li>
+            <a class="px-2" routerLinkActive="text-indigo-400" routerLink="/manage" [routerLinkActiveOptions]="{exact: true}">Manage</a>
+          </li>
+          <li>
+            <a class="px-2" routerLinkActive="text-indigo-400" routerLink="/upload" [routerLinkActiveOptions]="{exact: true}">Upload</a>
+          </li>
+        </ng-template>
         <li>
-          <a class="px-2" href="#">Manage</a>
+          <a class="px-2" routerLinkActive="text-indigo-400" routerLink="/about" [routerLinkActiveOptions]="{exact: true}">About</a>
         </li>
-        <li>
-          <a class="px-2" href="#">Upload</a>
-        </li>
-        <li>
-          <a class="px-2" href="about.html">About</a>
+        <li  *ngIf="(auth.isAuthenticated$ | async)">
+          <a class="px2" (click)="logout($event)" href="#">Logout</a>
         </li>
       </ul>
       <!-- Language Switcher -->

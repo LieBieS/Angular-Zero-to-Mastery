@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { IUser } from 'src/app/models/user';
 import { AuthService } from 'src/app/services/auth.service';
+import { RegisterValidators } from '../validators/register-validators';
+import { EmailTaken } from '../validators/email-taken';
 
 @Component({
   selector: 'app-register',
@@ -11,7 +13,7 @@ import { AuthService } from 'src/app/services/auth.service';
 
 export class RegisterComponent implements OnInit {
 
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService, private emailTaken: EmailTaken) { }
   ngOnInit(): void { }
   // Component variables
   showAlert = false;
@@ -21,7 +23,7 @@ export class RegisterComponent implements OnInit {
 
   //#region  Form Controls
   name = new FormControl('', [Validators.required, Validators.minLength(3)]);
-  email = new FormControl('', [Validators.required, Validators.email]);
+  email = new FormControl('', [Validators.required, Validators.email],[this.emailTaken.validate]);
   age = new FormControl(0, [
     Validators.required,
     Validators.min(18),
@@ -44,7 +46,7 @@ export class RegisterComponent implements OnInit {
     password: this.password,
     confirmPassword: this.confirmPassword,
     phoneNumber: this.phoneNumber,
-  });
+  }, [RegisterValidators.match('password', 'confirmPassword')]);
   //#endregion
 
   //#region User Creation
