@@ -1,35 +1,58 @@
 import { Injectable } from '@angular/core';
-import { User } from '../models/user';
+import { IUser } from '../models/user';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
+import {
+  AngularFirestore,
+  AngularFirestoreCollection,
+} from '@angular/fire/compat/firestore';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private auth: AngularFireAuth, private db: AngularFirestore) { }
+  private usersCollection: AngularFirestoreCollection<IUser>;
+  constructor(private auth: AngularFireAuth, private db: AngularFirestore) {
+    this.usersCollection = db.collection('users');
+  }
 
-  public async registerUser(user: User): Promise<number> {
+  public async registerUser(user: IUser): Promise<number> {
     const { email, password } = user;
     await this.auth
       .createUserWithEmailAndPassword(email as string, password as string)
-      .then(async () => {
-        await this.db
-          .collection('users')
-          .add({
-            name: user.name,
-            email: user.email,
-            age: user.age,
-            phoneNumber: user.phoneNumber,
+      .then(async (userCredentials) => {
+        await userCredentials.user
+          ?.updateProfile({
+            displayName: user.name,
           })
-          .then(() => {
-            return 201;
+          .then(async () => {
+            await this.usersCollection.doc(userCredentials.user?.uid).set({
+              name: user.name,
+              email: user.email,
+              age: user.age,
+              phoneNumber: user.phoneNumber,
+            });
           });
       })
       .catch((err) => {
         console.error(err);
         return 500;
       });
+    return 201;
+  }
+  public async login(user: IUser): Promise<number> {
+    if (user.password == null) {
       return 404;
+    }
+    await this.auth
+      .signInWithEmailAndPassword(user.email, user.password)
+      .then((usr) => {
+        console.log(usr.user);
+        return 200;
+      })
+      .catch((err) => {
+        console.error(err);
+        return 404;
+      });
+    return 200;
   }
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, Validator, Validators } from '@angular/forms';
-import { User } from 'src/app/models/user';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { IUser } from 'src/app/models/user';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
@@ -10,7 +10,7 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 
 export class RegisterComponent implements OnInit {
-  user = new User();
+
   constructor(private authService: AuthService) { }
   ngOnInit(): void { }
   // Component variables
@@ -50,35 +50,13 @@ export class RegisterComponent implements OnInit {
   //#region User Creation
   async register() {
     this.showUserNotification();
-    this.constructUserObj(
-      this.name.value || '',
-      this.email.value || '',
-      this.password.value || '',
-      this.age.value || 0,
-      this.phoneNumber.value || ''
-    );
-    const status = await this.authService.registerUser(this.user);
+
+    const status = await this.authService.registerUser(this.registerForm.value as IUser);
     if (status === 201) {
       this.successReturn();
     } else {
       this.errorReturn();
     }
-  }
-  //#endregion
-
-  //#region Object creation
-  private constructUserObj(
-    name: string,
-    email: string,
-    password: string,
-    age: number,
-    phoneNumber: string
-  ) {
-    this.user.name = name;
-    this.user.email = email;
-    this.user.password = password;
-    this.user.age = age;
-    this.user.phoneNumber = phoneNumber;
   }
   //#endregion
 

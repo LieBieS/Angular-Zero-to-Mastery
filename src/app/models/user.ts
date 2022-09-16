@@ -1,7 +1,8 @@
-export class User {
-    public name: string = '';
-    public email: string = '';
-    public age: number = 0;
-    public password: string = '';
-    public phoneNumber: string = '';
+export interface IUser {
+    name: string ;
+    email: string ;
+    age: number ;
+    password?: string ;
+    phoneNumber: string ;
+    uuid?: string
 }
