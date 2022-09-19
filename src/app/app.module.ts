@@ -10,12 +10,14 @@ import { environment } from '../environments/environment';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth'
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
+import { AngularFireStorageModule } from '@angular/fire/compat/storage';
 import { AuthService } from './services/auth.service';
 import { HomeComponent } from './home/home.component';
 import { AboutComponent } from './about/about.component';
-import { ManageComponent } from './video/manage/manage.component';
-import { UploadComponent } from './video/upload/upload.component';
+
 import { VideoModule } from './video/video.module';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { ClipComponent } from './clip/clip.component';
 
 @NgModule({
   declarations: [
@@ -23,16 +25,16 @@ import { VideoModule } from './video/video.module';
     NavComponent,
     HomeComponent,
     AboutComponent,
-    ManageComponent,
-    UploadComponent,
+    PageNotFoundComponent,
+    ClipComponent,
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
     UserModule,
     AngularFireAuthModule,
     AngularFirestoreModule,
     AngularFireModule.initializeApp(environment.firebase),
+    AngularFireStorageModule,
     VideoModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       //enabled: environment.production,
@@ -40,6 +42,7 @@ import { VideoModule } from './video/video.module';
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000'
     }),
+    AppRoutingModule,
   ],
   providers: [AuthService],
   bootstrap: [AppComponent]

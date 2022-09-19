@@ -17,7 +17,7 @@
         </li>
         <ng-template #authLinks>
           <li>
-            <a class="px-2" routerLinkActive="text-indigo-400" routerLink="/manage" [routerLinkActiveOptions]="{exact: true}">Manage</a>
+            <a class="px-2" routerLinkActive="text-indigo-400" routerLink="/manage" [routerLinkActiveOptions]="{exact: true}"  [queryParams]="{ sort: '1' }">Manage</a>
           </li>
           <li>
             <a class="px-2" routerLinkActive="text-indigo-400" routerLink="/upload" [routerLinkActiveOptions]="{exact: true}">Upload</a>
@@ -27,7 +27,7 @@
           <a class="px-2" routerLinkActive="text-indigo-400" routerLink="/about" [routerLinkActiveOptions]="{exact: true}">About</a>
         </li>
         <li  *ngIf="(auth.isAuthenticated$ | async)">
-          <a class="px2" (click)="logout($event)" href="#">Logout</a>
+          <a class="px2" (click)="auth.logout($event)" href="#">Logout</a>
         </li>
       </ul>
       <!-- Language Switcher -->
