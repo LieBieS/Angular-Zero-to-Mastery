@@ -1,17 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AngularFireStorage } from '@angular/fire/compat/storage';
+import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/compat/storage';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import firebase from 'firebase/compat/app';
 import { v4 as uuid } from 'uuid';
-import { last } from 'rxjs/operators';
-
+import { last, switchMap } from 'rxjs/operators';
+import { ClipService } from 'src/app/services/clip.service';
+import { Router } from '@angular/router';
+import { DocumentReference } from '@angular/fire/compat/firestore';
+import IClip from 'src/app/models/clip';
 @Component({
   selector: 'app-upload',
   templateUrl: './upload.component.html',
   styleUrls: ['./upload.component.css'],
 })
-export class UploadComponent implements OnInit {
+export class UploadComponent implements OnDestroy {
   isDragover: boolean = false;
   inSubmission: boolean = false;
   file: File | null = null;
@@ -22,6 +25,8 @@ export class UploadComponent implements OnInit {
   showPercent: boolean = false;
   percentage: number = 0;
   user: firebase.User | null = null;
+  task?: AngularFireUploadTask;
+
   title = new FormControl('', {
     validators: [Validators.required, Validators.minLength(3)],
   });
@@ -29,15 +34,17 @@ export class UploadComponent implements OnInit {
     title: this.title,
   });
 
-  constructor(private storage: AngularFireStorage, private auth: AngularFireAuth) {
+  constructor(private storage: AngularFireStorage, private auth: AngularFireAuth, private clipsSrv: ClipService, private router: Router) {
     auth.user.subscribe(user => this.user = user);
   }
-
-  ngOnInit(): void { }
+  ngOnDestroy(): void {
+    this.task?.cancel();
+  }
 
   storeFile(e: Event) {
     this.isDragover = false;
-    this.file = (e as DragEvent).dataTransfer?.files.item(0) ?? null;
+    this.file = (e as DragEvent).dataTransfer ? (e as DragEvent).dataTransfer?.files.item(0) ?? null :
+      (e.target as HTMLInputElement).files?.item(0) ?? null;
     if (!this.file || this.file.type !== 'video/mp4') {
       return;
     }
@@ -49,23 +56,26 @@ export class UploadComponent implements OnInit {
     this.showUserNotification();
     const clipFileName: string = uuid();
     const clipPath: string = `clips/${clipFileName}.mp4`;
-    const task = this.storage.upload(clipPath, this.file);
-
-    task.percentageChanges().subscribe((progress) => {
+    this.task = this.storage.upload(clipPath, this.file);
+    const clipRef = this.storage.ref(clipPath);
+    this.task.percentageChanges().subscribe((progress) => {
       this.percentage = (progress as number) / 100;
     });
-    task.snapshotChanges()
-      .pipe(last())
+    this.task.snapshotChanges()
+      .pipe(last(),
+        switchMap(() => clipRef.getDownloadURL()))
       .subscribe({
-        next: (snapshot) => {
+        next: async (url) => {
           const clip = {
-            uid: this.user?.uid,
-            displayName: this.user?.displayName,
-            title: this.title.value,
+            uid: this.user?.uid as string,
+            displayName: this.user?.displayName as string,
+            title: this.title.value as string,
             fileName: `${clipFileName}.mp4`,
-            url: this
+            url,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
           };
-          this.successReturn();
+
+          this.successReturn(await this.clipsSrv.createClip(clip));
         },
         error: (error) => {
           this.errorReturn();
@@ -75,6 +85,7 @@ export class UploadComponent implements OnInit {
 
 
   private showUserNotification() {
+    this.uploadForm.disable;
     this.showPercent = true;
     this.showAlert = true;
     this.alertMsg = 'Your video is being uploaded. Please wait..';
@@ -82,14 +93,20 @@ export class UploadComponent implements OnInit {
     this.inSubmission = true;
   }
 
-  private successReturn() {
+  private successReturn(clip: DocumentReference<IClip>) {
     this.showPercent = false;
     this.alertMsg = 'Your video have been successfully uploaded.';
     this.alertColour = 'green';
     this.showAlert = true;
+    setTimeout(() => {
+      this.router.navigate([
+        'clip', clip.id,
+      ])
+    }, 1000)
   }
 
   private errorReturn() {
+    this.uploadForm.enable
     this.alertMsg = 'An unexpected error occured. please try again later.';
     this.alertColour = 'red';
     this.showAlert = true;
