@@ -9,11 +9,15 @@ import { ClipService } from 'src/app/services/clip.service';
 import { Router } from '@angular/router';
 import { DocumentReference } from '@angular/fire/compat/firestore';
 import IClip from 'src/app/models/clip';
+import { FfmpegService } from 'src/app/services/ffmpeg.service';
+
+
 @Component({
   selector: 'app-upload',
   templateUrl: './upload.component.html',
   styleUrls: ['./upload.component.css'],
 })
+
 export class UploadComponent implements OnDestroy {
   isDragover: boolean = false;
   inSubmission: boolean = false;
@@ -26,6 +30,7 @@ export class UploadComponent implements OnDestroy {
   percentage: number = 0;
   user: firebase.User | null = null;
   task?: AngularFireUploadTask;
+  screenshots:string[]=[];
 
   title = new FormControl('', {
     validators: [Validators.required, Validators.minLength(3)],
@@ -34,20 +39,23 @@ export class UploadComponent implements OnDestroy {
     title: this.title,
   });
 
-  constructor(private storage: AngularFireStorage, private auth: AngularFireAuth, private clipsSrv: ClipService, private router: Router) {
+  constructor(private storage: AngularFireStorage, private auth: AngularFireAuth, private clipsSrv: ClipService, private router: Router, public ffmpegSrv: FfmpegService) {
     auth.user.subscribe(user => this.user = user);
+    ffmpegSrv.init();
   }
+
   ngOnDestroy(): void {
     this.task?.cancel();
   }
 
-  storeFile(e: Event) {
+  async storeFile(e: Event) {
     this.isDragover = false;
     this.file = (e as DragEvent).dataTransfer ? (e as DragEvent).dataTransfer?.files.item(0) ?? null :
       (e.target as HTMLInputElement).files?.item(0) ?? null;
     if (!this.file || this.file.type !== 'video/mp4') {
       return;
     }
+   this.screenshots = await this.ffmpegSrv.getScreenShots(this.file);
     this.title.setValue(this.file.name.replace('.mp4', ''));
     this.nextStep = true;
   }

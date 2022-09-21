@@ -50,9 +50,9 @@ export class ClipService {
           sort === '1' ? 'desc' : 'asc'
         );
 
-    return query.get();
-  }),
-  map((snapshot) => (snapshot as QuerySnapshot<IClip>).docs)
+        return query.get();
+      }),
+      map((snapshot) => (snapshot as QuerySnapshot<IClip>).docs)
     );
   }
 }
