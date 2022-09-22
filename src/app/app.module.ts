@@ -15,10 +15,10 @@ import { AuthService } from './services/auth.service';
 import { HomeComponent } from './home/home.component';
 import { AboutComponent } from './about/about.component';
 
-import { VideoModule } from './video/video.module';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { ClipComponent } from './clip/clip.component';
 import { ClipsListComponent } from './clips-list/clips-list.component';
+import { FbTimestampPipe } from './pipes/fb-timestamp.pipe';
 
 @NgModule({
   declarations: [
@@ -29,6 +29,7 @@ import { ClipsListComponent } from './clips-list/clips-list.component';
     PageNotFoundComponent,
     ClipComponent,
     ClipsListComponent,
+    FbTimestampPipe,
   ],
   imports: [
     BrowserModule,
@@ -37,7 +38,6 @@ import { ClipsListComponent } from './clips-list/clips-list.component';
     AngularFirestoreModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireStorageModule,
-    VideoModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       //enabled: environment.production,
       // Register the ServiceWorker as soon as the application is stable
