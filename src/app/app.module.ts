@@ -18,6 +18,7 @@ import { AboutComponent } from './about/about.component';
 import { VideoModule } from './video/video.module';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { ClipComponent } from './clip/clip.component';
+import { ClipsListComponent } from './clips-list/clips-list.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { ClipComponent } from './clip/clip.component';
     AboutComponent,
     PageNotFoundComponent,
     ClipComponent,
+    ClipsListComponent,
   ],
   imports: [
     BrowserModule,

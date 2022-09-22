@@ -17,6 +17,8 @@ import { AngularFireStorage } from '@angular/fire/compat/storage';
 })
 export class ClipService {
   public clipsCollection: AngularFirestoreCollection<IClip>;
+  pageClips: IClip[] = [];
+  pendingRequest: boolean = false;
   constructor(private db: AngularFirestore, private auth: AngularFireAuth, private storage: AngularFireStorage) {
     this.clipsCollection = db.collection('clips');
   }
@@ -32,10 +34,11 @@ export class ClipService {
   }
 
   async deleteClip(clip: IClip) {
-    await this.storage.ref(`clips/${clip.fileName}`).delete()
-    await this.clipsCollection.doc(clip.docID).delete()
-
+    await this.storage.ref(`clips/${clip.clipFileName}`).delete();
+    await this.storage.ref(`screenshots/${clip.screenshotFileName}`).delete();
+    await this.clipsCollection.doc(clip.docID).delete();
   }
+
   retrieveClips(sort$: BehaviorSubject<string>) {
     return combineLatest([this.auth.user, sort$]).pipe(
       switchMap((values) => {
@@ -54,5 +57,27 @@ export class ClipService {
       }),
       map((snapshot) => (snapshot as QuerySnapshot<IClip>).docs)
     );
+  }
+
+  async getClips() {
+    if (this.pendingRequest) {
+      return
+    }
+    this.pendingRequest = true;
+    let query = this.clipsCollection.ref.orderBy('timestamp', 'desc').limit(1);
+    const { length } = this.pageClips;
+    if (length) {
+      const lastDocID = this.pageClips[length - 1].docID;
+      const lastDoc = await this.clipsCollection.doc(lastDocID).get().toPromise();
+      query = query.startAfter(lastDoc)
+    }
+const snapShot = await query.get();
+snapShot.forEach(s => {
+  this.pageClips.push({
+    docID: s.id,
+    ...s.data()})
+})
+    this.pendingRequest = false;
+    
   }
 }
